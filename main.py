@@ -37,11 +37,20 @@ while True:
         info = ydl.extract_info(url, download=False)
 
     is_playlist = "entries" in info
-    title = info.get("title", "Unknown")
-    duration = info.get("duration") or 0
 
-    print(f"\nTitle: {title}")
-    print(f"Duration: {duration//60}:{duration%60:02d}")
+    # If playlist, get first video for format info
+    if is_playlist:
+        first_video = info['entries'][0]
+        title = info.get("title", "Unknown")
+        duration = first_video.get("duration") or 0
+        print(f"\nPlaylist: {title}")
+        print(f"First video duration: {duration//60}:{duration%60:02d}")
+    else:
+        first_video = info
+        title = info.get("title", "Unknown")
+        duration = info.get("duration") or 0
+        print(f"\nTitle: {title}")
+        print(f"Duration: {duration//60}:{duration%60:02d}")
 
     # Video or Audio
     mode = get_valid_choice("\nVideo or Audio? (v/a): ", ["v", "a"])
@@ -101,7 +110,7 @@ while True:
     # AUDIO MODE
     else:
         audio_formats = [
-            f for f in info.get("formats", [])
+            f for f in first_video.get("formats", [])
             if f.get("vcodec") == "none" and f.get("acodec") != "none"
         ]
 
